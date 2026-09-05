@@ -1,424 +1,832 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Public OSINT Search</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    <title>Public OSINT Search</title>
 
-    body {
-      min-height: 100vh;
-      background: #080b12;
-      color: #e8edf7;
-      font-family: Inter, Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      padding: 50px 20px;
-    }
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    .container {
-      width: 100%;
-      max-width: 900px;
-    }
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top, #18213a 0%, #080b12 45%);
+            color: #e8edf7;
+            font-family: Arial, Helvetica, sans-serif;
+            padding: 50px 20px;
+        }
 
-    header {
-      text-align: center;
-      margin-bottom: 35px;
-    }
+        .container {
+            width: 100%;
+            max-width: 950px;
+            margin: auto;
+        }
 
-    .logo {
-      display: inline-flex;
-      width: 55px;
-      height: 55px;
-      align-items: center;
-      justify-content: center;
-      border-radius: 14px;
-      background: #171d2b;
-      border: 1px solid #293247;
-      font-size: 25px;
-      margin-bottom: 15px;
-    }
+        header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
 
-    h1 {
-      font-size: 32px;
-      margin-bottom: 10px;
-    }
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 18px;
 
-    .subtitle {
-      color: #8994a8;
-      font-size: 15px;
-    }
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    .search-panel {
-      background: #0f141e;
-      border: 1px solid #20293a;
-      border-radius: 18px;
-      padding: 25px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, .3);
-    }
+            border-radius: 16px;
+            background: #151c2c;
+            border: 1px solid #2b3750;
 
-    .inputs {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
+            font-size: 28px;
+        }
 
-    .field label {
-      display: block;
-      color: #b9c2d2;
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
+        h1 {
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
 
-    input, select {
-      width: 100%;
-      height: 48px;
-      border-radius: 10px;
-      border: 1px solid #293449;
-      background: #090d15;
-      color: white;
-      padding: 0 14px;
-      outline: none;
-      font-size: 14px;
-    }
+        .subtitle {
+            color: #8e9ab0;
+            font-size: 15px;
+        }
 
-    input:focus, select:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, .12);
-    }
+        .search-panel {
+            background: rgba(15, 20, 30, 0.95);
+            border: 1px solid #222d42;
+            border-radius: 18px;
+            padding: 28px;
 
-    .username-row {
-      display: grid;
-      grid-template-columns: 1fr 150px;
-      gap: 8px;
-    }
+            box-shadow:
+                0 25px 80px rgba(0, 0, 0, 0.4);
+        }
 
-    .search-button {
-      width: 100%;
-      margin-top: 22px;
-      height: 50px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      color: white;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: .2s;
-    }
+        .inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
 
-    .search-button:hover {
-      transform: translateY(-1px);
-      filter: brightness(1.1);
-    }
+        .field label {
+            display: block;
+            color: #b9c2d2;
+            font-size: 13px;
+            margin-bottom: 9px;
+        }
 
-    .search-button:disabled {
-      opacity: .6;
-      cursor: wait;
-      transform: none;
-    }
+        input,
+        select {
+            width: 100%;
+            height: 48px;
 
-    .results {
-      display: none;
-      margin-top: 25px;
-    }
+            border-radius: 10px;
+            border: 1px solid #2a364c;
 
-    .results.visible {
-      display: block;
-    }
+            background: #080c14;
+            color: #ffffff;
 
-    .results-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
+            padding: 0 14px;
+            outline: none;
 
-    .results-header h2 {
-      font-size: 18px;
-    }
+            font-size: 14px;
+        }
 
-    .status {
-      color: #63d297;
-      font-size: 12px;
-    }
+        input::placeholder {
+            color: #59667c;
+        }
 
-    .result-card {
-      background: #0f141e;
-      border: 1px solid #20293a;
-      border-radius: 14px;
-      padding: 20px;
-      margin-bottom: 12px;
-    }
+        input:focus,
+        select:focus {
+            border-color: #687ff0;
 
-    .result-title {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 15px;
-    }
+            box-shadow:
+                0 0 0 3px rgba(104, 127, 240, 0.12);
+        }
 
-    .result-title strong {
-      font-size: 15px;
-    }
+        .username-row {
+            display: grid;
+            grid-template-columns: 1fr 160px;
+            gap: 8px;
+        }
 
-    .badge {
-      font-size: 11px;
-      padding: 4px 8px;
-      border-radius: 20px;
-      background: #172338;
-      color: #8eb3ff;
-    }
+        .search-button {
+            width: 100%;
+            height: 52px;
 
-    .info {
-      display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 9px;
-      font-size: 13px;
-    }
+            margin-top: 23px;
 
-    .info .key {
-      color: #78859b;
-    }
+            border: none;
+            border-radius: 10px;
 
-    .info .value {
-      color: #dce3ef;
-      word-break: break-word;
-    }
+            background:
+                linear-gradient(
+                    135deg,
+                    #667eea,
+                    #764ba2
+                );
 
-    .empty {
-      text-align: center;
-      color: #78859b;
-      padding: 35px;
-      border: 1px dashed #293449;
-      border-radius: 12px;
-    }
+            color: white;
 
-    .notice {
-      margin-top: 15px;
-      color: #69768c;
-      font-size: 11px;
-      line-height: 1.6;
-      text-align: center;
-    }
+            font-size: 15px;
+            font-weight: bold;
 
-    @media (max-width: 700px) {
-      .inputs {
-        grid-template-columns: 1fr;
-      }
+            cursor: pointer;
 
-      .username-row {
-        grid-template-columns: 1fr;
-      }
+            transition:
+                transform 0.2s,
+                filter 0.2s;
+        }
 
-      .info {
-        grid-template-columns: 1fr;
-        gap: 3px;
-      }
+        .search-button:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.1);
+        }
 
-      .info .key {
-        margin-top: 8px;
-      }
-    }
-  </style>
+        .search-button:disabled {
+            opacity: 0.6;
+            cursor: wait;
+            transform: none;
+        }
+
+        .notice {
+            margin-top: 16px;
+
+            text-align: center;
+
+            color: #69768c;
+
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .results {
+            display: none;
+            margin-top: 28px;
+        }
+
+        .results.visible {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            margin-bottom: 14px;
+        }
+
+        .results-header h2 {
+            font-size: 19px;
+        }
+
+        .status {
+            color: #63d297;
+            font-size: 12px;
+        }
+
+        .result-card {
+            background: #0f141e;
+
+            border: 1px solid #202a3c;
+            border-radius: 14px;
+
+            padding: 20px;
+            margin-bottom: 12px;
+        }
+
+        .result-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            margin-bottom: 16px;
+        }
+
+        .result-title strong {
+            font-size: 15px;
+        }
+
+        .badge {
+            padding: 5px 9px;
+
+            border-radius: 20px;
+
+            background: #17233a;
+            color: #8eb3ff;
+
+            font-size: 11px;
+        }
+
+        .info {
+            display: grid;
+
+            grid-template-columns: 150px 1fr;
+
+            gap: 10px;
+
+            font-size: 13px;
+        }
+
+        .key {
+            color: #78859b;
+        }
+
+        .value {
+            color: #dce3ef;
+            word-break: break-word;
+        }
+
+        .value a {
+            color: #7fa7ff;
+            text-decoration: none;
+        }
+
+        .value a:hover {
+            text-decoration: underline;
+        }
+
+        .empty {
+            text-align: center;
+
+            color: #78859b;
+
+            padding: 40px;
+
+            border:
+                1px dashed #293449;
+
+            border-radius: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 35px;
+            color: #8d9ab0;
+        }
+
+        .spinner {
+            width: 25px;
+            height: 25px;
+
+            margin: 0 auto 12px;
+
+            border:
+                3px solid #263248;
+
+            border-top-color:
+                #7288f0;
+
+            border-radius: 50%;
+
+            animation:
+                spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error {
+            padding: 18px;
+
+            border-radius: 10px;
+
+            background: #2a151a;
+            border: 1px solid #57252d;
+
+            color: #ff9ba6;
+
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+
+            .inputs {
+                grid-template-columns: 1fr;
+            }
+
+            .username-row {
+                grid-template-columns: 1fr;
+            }
+
+            .info {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+
+            .key {
+                margin-top: 8px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .search-panel {
+                padding: 20px;
+            }
+        }
+    </style>
 </head>
+
 
 <body>
 
 <div class="container">
 
-  <header>
-    <div class="logo">⌕</div>
-    <h1>Public OSINT Search</h1>
-    <p class="subtitle">
-      Search publicly available information using a phone number or username.
-    </p>
-  </header>
+    <!-- HEADER -->
 
-  <section class="search-panel">
+    <header>
 
-    <div class="inputs">
-
-      <!-- Phone number -->
-      <div class="field">
-        <label for="phone">Phone number</label>
-        <input
-          id="phone"
-          type="tel"
-          placeholder="+1 555 123 4567"
-        >
-      </div>
-
-      <!-- Username + platform -->
-      <div class="field">
-        <label for="username">Username + platform</label>
-
-        <div class="username-row">
-          <input
-            id="username"
-            type="text"
-            placeholder="username"
-          >
-
-          <select id="platform">
-            <option value="twitter">X / Twitter</option>
-            <option value="instagram">Instagram</option>
-            <option value="github">GitHub</option>
-            <option value="reddit">Reddit</option>
-            <option value="tiktok">TikTok</option>
-            <option value="youtube">YouTube</option>
-          </select>
+        <div class="logo">
+            🔎
         </div>
-      </div>
 
-    </div>
+        <h1>
+            Public OSINT Search
+        </h1>
 
-    <button class="search-button" id="searchButton">
-      Search Public Information
-    </button>
+        <p class="subtitle">
+            Search publicly available information using a phone number or username.
+        </p>
 
-    <p class="notice">
-      Only publicly accessible information should be collected.
-      Do not use this tool to access private accounts, passwords,
-      leaked credentials, or other non-public data.
-    </p>
-
-  </section>
+    </header>
 
 
-  <!-- Results -->
-  <section class="results" id="results">
+    <!-- SEARCH -->
 
-    <div class="results-header">
-      <h2>Search Results</h2>
-      <span class="status" id="status">Complete</span>
-    </div>
+    <section class="search-panel">
 
-    <div id="resultsContainer"></div>
+        <div class="inputs">
 
-  </section>
+            <!-- PHONE -->
+
+            <div class="field">
+
+                <label for="phone">
+                    Phone number
+                </label>
+
+                <input
+                    id="phone"
+                    type="tel"
+                    autocomplete="off"
+                    placeholder="+1 555 123 4567"
+                >
+
+            </div>
+
+
+            <!-- USERNAME -->
+
+            <div class="field">
+
+                <label for="username">
+                    Username + platform
+                </label>
+
+                <div class="username-row">
+
+                    <input
+                        id="username"
+                        type="text"
+                        autocomplete="off"
+                        placeholder="username"
+                    >
+
+                    <select id="platform">
+
+                        <option value="twitter">
+                            X / Twitter
+                        </option>
+
+                        <option value="instagram">
+                            Instagram
+                        </option>
+
+                        <option value="github">
+                            GitHub
+                        </option>
+
+                        <option value="reddit">
+                            Reddit
+                        </option>
+
+                        <option value="tiktok">
+                            TikTok
+                        </option>
+
+                        <option value="youtube">
+                            YouTube
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SEARCH BUTTON -->
+
+        <button
+            class="search-button"
+            id="searchButton"
+        >
+            Search Public Information
+        </button>
+
+
+        <p class="notice">
+            This tool is intended for publicly accessible information.
+            Do not use it to access private accounts, passwords,
+            leaked credentials, or other non-public information.
+        </p>
+
+    </section>
+
+
+    <!-- RESULTS -->
+
+    <section
+        class="results"
+        id="results"
+    >
+
+        <div class="results-header">
+
+            <h2>
+                Search Results
+            </h2>
+
+            <span
+                class="status"
+                id="status"
+            >
+                Ready
+            </span>
+
+        </div>
+
+
+        <div id="resultsContainer"></div>
+
+    </section>
 
 </div>
 
 
 <script>
 
-  const searchButton = document.getElementById("searchButton");
-  const results = document.getElementById("results");
-  const resultsContainer = document.getElementById("resultsContainer");
-  const status = document.getElementById("status");
+    const searchButton =
+        document.getElementById("searchButton");
 
-  searchButton.addEventListener("click", async () => {
+    const results =
+        document.getElementById("results");
 
-    const phone = document.getElementById("phone").value.trim();
-    const username = document.getElementById("username").value.trim();
-    const platform = document.getElementById("platform").value;
+    const resultsContainer =
+        document.getElementById("resultsContainer");
 
-    if (!phone && !username) {
-      alert("Enter a phone number or username.");
-      return;
-    }
+    const status =
+        document.getElementById("status");
 
-    searchButton.disabled = true;
-    searchButton.textContent = "Searching...";
-
-    results.classList.add("visible");
-    status.textContent = "Searching...";
-
-    resultsContainer.innerHTML = `
-      <div class="empty">
-        Searching publicly available sources...
-      </div>
-    `;
 
     /*
-      Replace this section with a request to YOUR backend.
+     * SEARCH
+     */
 
-      Example:
-
-      const response = await fetch("/api/search", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          phone,
-          username,
-          platform
-        })
-      });
-
-      const data = await response.json();
-
-      renderResults(data);
-    */
-
-    // Demo result
-    await new Promise(resolve => setTimeout(resolve, 1200));
-
-    const searchType = phone
-      ? "Phone number"
-      : "Username";
-
-    const searchValue = phone || username;
-
-    resultsContainer.innerHTML = `
-      <div class="result-card">
-
-        <div class="result-title">
-          <strong>Search submitted</strong>
-          <span class="badge">${searchType}</span>
-        </div>
-
-        <div class="info">
-          <div class="key">Identifier</div>
-          <div class="value">${escapeHTML(searchValue)}</div>
-
-          ${
-            username
-              ? `
-                <div class="key">Platform</div>
-                <div class="value">${escapeHTML(platform)}</div>
-              `
-              : ""
-          }
-
-          <div class="key">Data source</div>
-          <div class="value">Public sources only</div>
-
-          <div class="key">Status</div>
-          <div class="value">
-            Connect a backend/API to perform real public-source searches.
-          </div>
-        </div>
-
-      </div>
-    `;
-
-    status.textContent = "Complete";
-
-    searchButton.disabled = false;
-    searchButton.textContent = "Search Public Information";
-
-  });
+    searchButton.addEventListener(
+        "click",
+        search
+    );
 
 
-  function escapeHTML(value) {
-    return value
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
+    /*
+     * Allow Enter key to search
+     */
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (event.key === "Enter") {
+                search();
+            }
+
+        }
+    );
+
+
+    async function search() {
+
+        const phone =
+            document
+                .getElementById("phone")
+                .value
+                .trim();
+
+        const username =
+            document
+                .getElementById("username")
+                .value
+                .trim();
+
+        const platform =
+            document
+                .getElementById("platform")
+                .value;
+
+
+        /*
+         * Require at least one input
+         */
+
+        if (!phone && !username) {
+
+            alert(
+                "Enter a phone number or username."
+            );
+
+            return;
+        }
+
+
+        /*
+         * Loading state
+         */
+
+        searchButton.disabled = true;
+
+        searchButton.textContent =
+            "Searching...";
+
+        results.classList.add("visible");
+
+        status.textContent =
+            "Searching";
+
+
+        resultsContainer.innerHTML = `
+            <div class="loading">
+
+                <div class="spinner"></div>
+
+                Searching public sources...
+
+            </div>
+        `;
+
+
+        try {
+
+            /*
+             * Send request to Node.js backend
+             */
+
+            const response =
+                await fetch(
+                    "/api/search",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                phone,
+                                username,
+                                platform
+                            })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Search failed."
+                );
+
+            }
+
+
+            /*
+             * Display results
+             */
+
+            renderResults(
+                data.results || []
+            );
+
+
+            status.textContent =
+                "Complete";
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            resultsContainer.innerHTML = `
+                <div class="error">
+
+                    <strong>
+                        Search failed
+                    </strong>
+
+                    <br><br>
+
+                    ${escapeHTML(error.message)}
+
+                    <br><br>
+
+                    Make sure your Node.js
+                    backend is running.
+
+                </div>
+            `;
+
+
+            status.textContent =
+                "Error";
+
+        }
+
+
+        /*
+         * Restore button
+         */
+
+        searchButton.disabled = false;
+
+        searchButton.textContent =
+            "Search Public Information";
+
+    }
+
+
+    /*
+     * DISPLAY RESULTS
+     */
+
+    function renderResults(results) {
+
+        if (!results.length) {
+
+            resultsContainer.innerHTML = `
+                <div class="empty">
+
+                    No public results found.
+
+                </div>
+            `;
+
+            return;
+        }
+
+
+        resultsContainer.innerHTML =
+            results
+                .map(
+                    result => {
+
+                        const platform =
+                            result.platform ||
+                            "Public Source";
+
+
+                        return `
+
+                            <div class="result-card">
+
+                                <div class="result-title">
+
+                                    <strong>
+                                        ${escapeHTML(
+                                            result.type ||
+                                            "Result"
+                                        )}
+                                    </strong>
+
+                                    <span class="badge">
+                                        ${escapeHTML(
+                                            platform
+                                        )}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="info">
+
+                                    <div class="key">
+                                        Value
+                                    </div>
+
+                                    <div class="value">
+                                        ${escapeHTML(
+                                            result.value ||
+                                            ""
+                                        )}
+                                    </div>
+
+
+                                    <div class="key">
+                                        Source
+                                    </div>
+
+                                    <div class="value">
+                                        ${escapeHTML(
+                                            result.source ||
+                                            "Public source"
+                                        )}
+                                    </div>
+
+
+                                    <div class="key">
+                                        Status
+                                    </div>
+
+                                    <div class="value">
+                                        ${escapeHTML(
+                                            result.status ||
+                                            "Available"
+                                        )}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        `;
+
+                    }
+                )
+                .join("");
+
+    }
+
+
+    /*
+     * SECURITY:
+     * Escape API/user data before putting
+     * it into HTML.
+     */
+
+    function escapeHTML(value) {
+
+        return String(value)
+
+            .replaceAll(
+                "&",
+                "&amp;"
+            )
+
+            .replaceAll(
+                "<",
+                "&lt;"
+            )
+
+            .replaceAll(
+                ">",
+                "&gt;"
+            )
+
+            .replaceAll(
+                '"',
+                "&quot;"
+            )
+
+            .replaceAll(
+                "'",
+                "&#039;"
+            );
+
+    }
 
 </script>
 
 </body>
 </html>
-
